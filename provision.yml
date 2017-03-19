@@ -1,0 +1,33 @@
+---
+- hosts: servers
+  vars_files:
+    - vars.yml
+  gather_facts: false
+  become: yes
+
+  tasks:
+    - name: creating aws folder in var/www
+      file: path="/var/www/.aws/" state=directory mode=770 group=www-data
+
+    - name: sopying config/credential files
+      copy: src={{ item }} dest=/var/www/.aws/ mode=770 group=www-data 
+      with_items:
+        - "{{ aws_config }}"
+        - "{{ aws_credentials }}"
+
+    - name: Install system packages
+      apt: pkg={{ item }} update-cache=yes
+      with_items: "{{ system_packages }}"
+
+    - name: Save ssh key to server
+      copy: src={{ ssh_private_key }} dest=/root/.ssh/id_rsa mode=600
+
+    - name: Create directory for app
+      file: path={{ install_root }}/{{ project_name }} state=directory mode=767
+
+    - name: remove default nginx site
+      file: path=/etc/nginx/sites-enabled/default state=absent
+
+- include: deploy.yml
+
+# vim:ft=ansible:
