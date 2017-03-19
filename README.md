@@ -25,3 +25,7 @@ project_name: webapp
 wsgi_module: webapp.wsgi
 static_root: "{{ install_root }}/{{ project_name }}/static"
 ```
+5. Run ansible playbook
+```
+ansible-playbook -i hosts provision.yml --ask-sudo-pass
+```
